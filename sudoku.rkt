@@ -1,6 +1,7 @@
 #lang racket
 (provide transform 
-         column)
+         column
+         get-box)
 
 ;(define (solve matrix)(matrix))
 
@@ -34,22 +35,40 @@
 
 ;; Extracts a box from a grid, 0-indexed
 ;; Boxes are numbered 0-8, top-left until bottom-right
-(define (box matrix num)
- 
-  (define which-rows 0)  ; should this be let?
-  (define which-columns 0)
-  (define (rows matrix which-rows)
+(define (get-box matrix num)
+  
+  ; Return rows based on box number: 0-indexed
+  (define (get-rows matrix num)
     (cond 
-      [(= which-rows 0) '()]
-      [(< which-rows 4) 
-       (cons
-        (columns (car matrix) which-columns))
-        (rows (cdr matrix (- which-rows 1)))]
-      [else
-       (rows (cdr matrix (- which-rows 1)))]))
+      [(= num 0) 
+       (cons (list-ref matrix 0)
+             (cons (list-ref matrix 1)
+                   (cons
+                    (list-ref matrix 2) '())))]
+      [else 
+       ; matrix minus last 3 rows
+       (get-rows (cdr (cdr (cdr matrix))) (- num 1))]))
   
-  (define (columns matrix which-columns)
-    '())
-  
-  (rows matrix 0)
-    )
+  ; Returns a subset of the elements in each row
+  (define (reduce-rows matrix num)
+    
+    (define (reduce-helper matrix num acc)
+      (cond
+        [(empty? matrix) acc]
+        [(list? (car matrix))
+                (cons (reduce-helper (car matrix) num acc) 
+                      (reduce-helper (cdr matrix) num acc))]
+        [(= num 0)
+         (cons (list-ref matrix 0)
+               (cons (list-ref matrix 1)
+                     (cons (list-ref matrix 2) acc)))]
+        [else
+         (reduce-helper (cdr (cdr (cdr matrix))) (- num 1) acc)]))
+
+    (reduce-helper matrix num '()))
+    
+  (let ([which-rows (- (ceiling (/ (+ num 1) 3)) 1)])
+    (let ([which-columns (modulo num 3)])
+      (reduce-rows (get-rows matrix which-rows) which-columns))))
+
+

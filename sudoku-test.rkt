@@ -18,3 +18,8 @@
 
 ;; Testing column on grid
 (check-equal? (column example 8) (list 0 0 0 0 9 0 0 3 0))
+
+;; Testing box on grid
+(check-equal? (get-box example 0) (list (list 0 2 5)
+                                        (list 1 0 4)
+                                        (list 0 0 6)))
