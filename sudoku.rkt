@@ -89,3 +89,24 @@
   
   (exists-helper seq num #f))
 
+;; Removes numbers from sets that already exist in row/column/box
+;; NOT TESTED
+(define (remove matrix)
+  
+  (define (remove-helper matrix acc)
+    
+    (define (set-iterator set result)
+      (cond
+        [(empty? set) result]
+        [else
+         (filter (set (lambda (x) (exists set x))))]))
+      
+    (cond
+      [(empty? matrix) acc]
+      [(list? matrix)
+       (cons
+        (remove-helper (car matrix) acc)(remove-helper (cdr matrix) acc))]
+      [(set? matrix)
+       (set-iterator matrix acc)]))
+  
+  (remove-helper matrix '()))
