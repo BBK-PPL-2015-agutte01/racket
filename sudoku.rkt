@@ -1,7 +1,8 @@
 #lang racket
 (provide transform 
          column
-         get-box)
+         get-box
+         exists)
 
 ;(define (solve matrix)(matrix))
 
@@ -47,7 +48,7 @@
                     (list-ref matrix 2) '())))]
       [else 
        ; matrix minus last 3 rows
-       (get-rows (cdr (cdr (cdr matrix))) (- num 1))]))
+       (get-rows (cdddr matrix) (- num 1))]))
   
   ; Returns a subset of the elements in each row
   (define (reduce-rows matrix num)
@@ -63,7 +64,7 @@
                (cons (list-ref matrix 1)
                      (cons (list-ref matrix 2) acc)))]
         [else
-         (reduce-helper (cdr (cdr (cdr matrix))) (- num 1) acc)]))
+         (reduce-helper (cdddr matrix) (- num 1) acc)]))
 
     (reduce-helper matrix num '()))
     
@@ -71,4 +72,20 @@
     (let ([which-columns (modulo num 3)])
       (reduce-rows (get-rows matrix which-rows) which-columns))))
 
+;; Checks sequence for number
+(define (exists seq num)
+  
+  (define (exists-helper seq num acc)
+    (cond 
+      [(empty? seq) #f]
+      [(list? (car seq))
+       (cond
+         [(empty? (cdr seq))
+          (exists-helper (car seq) num acc)]
+         [else 
+          (or (exists-helper (car seq) num acc) (exists-helper (cdr seq) num acc))])]
+      [else
+       (if (eq? (car seq) num) #t (exists-helper (cdr seq) num acc))]))
+  
+  (exists-helper seq num #f))
 
